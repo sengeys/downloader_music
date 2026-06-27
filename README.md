@@ -1,7 +1,7 @@
 
 # downloader_music
 
-[![Download Latest Release](https://img.shields.io/github/v/release/sengeys/downloader_music?label=Download&color=success)](https://github.com/sengeys/downloader_music/releases/latest)
+[![Download Latest Release](https://img.shields.io/github/v/release/sengeys/downloader_music?label=Download&color=success)](https://github.com/sengeys/downloader_music/releases)
 
 កម្មវិធី Download Video/MP3 សម្រាប់ Windows និង macOS
 
