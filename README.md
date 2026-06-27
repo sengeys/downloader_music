@@ -1,19 +1,6 @@
-# downloader_music
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<p align="center">
+  <img src="docs/images/logo.png" width="150"/>
+</p>
 
 # downloader_music
 
@@ -21,5 +8,14 @@ samples, guidance on mobile development, and a full API reference.
 
 កម្មវិធី Download Video/MP3 សម្រាប់ Windows និង macOS
 
+## Screenshot
+
+![App Screenshot](docs/images/screenshot1.png)
+
 ## Download
 👉 [ចុចទីនេះដើម្បី Download Version ថ្មីបំផុត](https://github.com/sengeys/downloader_music/releases/latest)
+
+## Features
+- Download Video MP4 (1080p, 720p)
+- Download Audio MP3
+- Auto-Update yt-dlp Engine
