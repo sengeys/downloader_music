@@ -1,0 +1,42 @@
+name: Build macOS App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Download yt-dlp binary
+        run: |
+          mkdir -p assets/bin/macos
+          curl -L -o assets/bin/macos/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
+          chmod +x assets/bin/macos/yt-dlp
+
+      - name: Download ffmpeg binary
+        run: |
+          curl -L -o ffmpeg.zip https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip
+          unzip ffmpeg.zip -d assets/bin/macos/
+          chmod +x assets/bin/macos/ffmpeg
+
+      - run: flutter pub get
+
+      - run: flutter build macos --release
+
+      - name: Zip the .app
+        run: |
+          cd build/macos/Build/Products/Release/
+          zip -r downloader_music_macos.zip downloader_music.app
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: downloader_music-macos
+          path: build/macos/Build/Products/Release/downloader_music_macos.zip
