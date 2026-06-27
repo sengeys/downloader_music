@@ -1,6 +1,9 @@
 name: Build macOS App
 
 on:
+  push:
+    tags:
+      - 'v*'    # *** Trigger ស្វ័យប្រវត្តិពេល Push Tag (v1.0.0, v1.0.1 ...) ***
   workflow_dispatch:
 
 jobs:
@@ -26,13 +29,20 @@ jobs:
           chmod +x assets/bin/macos/ffmpeg
 
       - run: flutter pub get
-
       - run: flutter build macos --release
 
       - name: Zip the .app
         run: |
           cd build/macos/Build/Products/Release/
           zip -r downloader_music_macos.zip downloader_music.app
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/macos/Build/Products/Release/downloader_music_macos.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4

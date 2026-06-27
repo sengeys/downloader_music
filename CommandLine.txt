@@ -5,3 +5,9 @@ flutter pub get
 dart run flutter_launcher_icons
 
 flutter build windows --release
+
+// Command Push git
+git add .
+git commit -m "Update last version"
+git tag v1.0.0
+git push origin v1.0.0
