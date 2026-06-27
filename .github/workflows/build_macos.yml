@@ -1,9 +1,9 @@
-name: Build macOS App
+name: Build Apps
 
 on:
   push:
     tags:
-      - 'v*'    # *** Trigger ស្វ័យប្រវត្តិពេល Push Tag (v1.0.0, v1.0.1 ...) ***
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -49,3 +49,49 @@ jobs:
         with:
           name: downloader_music-macos
           path: build/macos/Build/Products/Release/downloader_music_macos.zip
+
+  # *** Job ថ្មីសម្រាប់ Windows ***
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Download yt-dlp binary
+        run: |
+          mkdir -p assets/bin/windows
+          curl -L -o assets/bin/windows/yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+        shell: bash
+
+      - name: Download ffmpeg binary
+        run: |
+          curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          unzip ffmpeg.zip -d ffmpeg_temp
+          FFMPEG_DIR=$(find ffmpeg_temp -name "ffmpeg.exe" -exec dirname {} \;)
+          cp "$FFMPEG_DIR/ffmpeg.exe" assets/bin/windows/ffmpeg.exe
+        shell: bash
+
+      - run: flutter pub get
+      - run: flutter build windows --release
+
+      - name: Zip the build output
+        run: |
+          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath downloader_music_windows.zip
+        shell: pwsh
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: downloader_music_windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: downloader_music-windows
+          path: downloader_music_windows.zip
