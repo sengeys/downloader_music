@@ -11,5 +11,5 @@ git add .
 git commit -m "Add Windows build job alongside macOS"
 git push
 
-git tag v1.0.4
-git push origin v1.0.4
+git tag v1.0.5
+git push origin v1.0.5

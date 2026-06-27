@@ -85,7 +85,28 @@ jobs:
 
       - run: flutter pub get
       - run: flutter build windows --release
-      
+
+      # *** Step ថ្មី — Compile Inno Setup Installer ដោយស្វ័យប្រវត្តិ ***
+      - name: Compile Inno Setup Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: installer.iss
+          options: /O+
+
+      - name: Upload to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: installer_output/downloader_music_Setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: downloader_music-windows-installer
+          path: installer_output/downloader_music_Setup.exe
+      # *** Upload ***
       - name: Zip the build output
         run: |
           Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath downloader_music_windows.zip
