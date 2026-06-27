@@ -1,4 +1,4 @@
-![image](https://github.com/sengeys/downloader_music/assets/images/image.png)
+![image](https://github.com/sengeys/downloader_music/blob/main/assets/images/image.png)
 
 # downloader_music
 
