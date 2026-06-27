@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="docs/images/logo.png" width="150"/>
-</p>
+![image](https://github.com/sengeys/downloader_music/assets/images/image.png)
 
 # downloader_music
 
