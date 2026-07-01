@@ -6,6 +6,7 @@ import 'dart:io';
 import '../models/download_progress.dart';
 import '../utils/binary_path.dart';
 
+
 enum DownloadFormat { mp4_1080p, mp4_720p, mp3 }
 
 class DownloaderService {

@@ -19,6 +19,7 @@ class UpdateResult {
   });
 }
 
+
 extension DownloaderServiceUpdate on DownloaderService {
   /// Run "yt-dlp -U" ដើម្បី self-update binary
   static Future<UpdateResult> checkAndUpdate() async {

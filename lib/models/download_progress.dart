@@ -18,3 +18,4 @@ class DownloadProgress {
     this.rawLine = '',
   });
 }
+
