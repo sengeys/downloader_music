@@ -8,63 +8,88 @@ on:
 
 jobs:
   build-macos:
+    # ប្រើ Mac Virtual Machine
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      # Step 1: ទាញ Code ពី GitHub មកលើ Runner
+      - uses: actions/checkout@v7
 
+      # Step 2: ដំឡើង Flutter SDK (stable version ថ្មីបំផុត)
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
+      # Step 3: Download yt-dlp binary សម្រាប់ Mac
       - name: Download yt-dlp binary
         run: |
           mkdir -p assets/bin/macos
           curl -L -o assets/bin/macos/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos
           chmod +x assets/bin/macos/yt-dlp
 
+      # Step 4: Download ffmpeg binary សម្រាប់ Mac
       - name: Download ffmpeg binary
         run: |
           curl -L -o ffmpeg.zip https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip
           unzip ffmpeg.zip -d assets/bin/macos/
           chmod +x assets/bin/macos/ffmpeg
 
+      # Step 5: ទាញ Package dependencies
       - run: flutter pub get
+
+      # Step 6: Build App ជា Release
       - run: flutter build macos --release
 
+      # Step 7: Zip .app ដើម្បីឲ្យ Upload បាន
+      # (GitHub Release អាច Upload File ណាមួយ
+      # ប៉ុន្តែ .app ជា Folder ដូច្នេះត្រូវ Zip ជាមុន)
       - name: Zip the .app
         run: |
           cd build/macos/Build/Products/Release/
           zip -r downloader_music_macos.zip downloader_music.app
 
+      # Step 8: Upload ទៅ GitHub Release
+      # (if: startsWith — Run Step នេះ តែពេល Push Tag v* ប៉ុណ្ណោះ)
+      # (ពេល Run ដោយ workflow_dispatch ដោយដៃ — Skip Step នេះ)
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2.2.2
+        uses: softprops/action-gh-release@v3
         with:
           files: build/macos/Build/Products/Release/downloader_music_macos.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Step 9: Upload ជា Artifact
+      # (Artifact = File ដែល Download បានតាម GitHub Actions Tab
+      # ផ្ទុក ៩០ថ្ងៃ — ប្រើ Test ពេល Run ដោយដៃ មិន Push Tag)
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7
         with:
           name: downloader_music-macos
           path: build/macos/Build/Products/Release/downloader_music_macos.zip
 
+
   build-windows:
+    # ប្រើ Windows Virtual Machine
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      # Step 1: ទាញ Code ពី GitHub មកលើ Runner
+      - uses: actions/checkout@v7
 
+      # Step 2: ដំឡើង Flutter SDK (stable version ថ្មីបំផុត)
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
+      # Step 3: Download yt-dlp.exe សម្រាប់ Windows
+      # shell: bash ព្រោះ mkdir -p និង curl ជា Linux/bash command
+      # Windows Runner មាន Git Bash ស្រាប់
       - name: Download yt-dlp binary
         run: |
           mkdir -p assets/bin/windows
           curl -L -o assets/bin/windows/yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
         shell: bash
 
+      # Step 4: Download ffmpeg.exe សម្រាប់ Windows
       - name: Download ffmpeg binary
         run: |
           curl -L -o ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
@@ -73,6 +98,9 @@ jobs:
           cp "$FFMPEG_DIR/ffmpeg.exe" assets/bin/windows/ffmpeg.exe
         shell: bash
 
+      # Step 5: បង្កើត Folder ទទេ ដើម្បី Satisfy pubspec.yaml
+      # (pubspec.yaml ត្រូវការ assets/bin/macos/ និង assets/images/
+      # ប៉ុន្តែ Windows Runner មិនមាន ត្រូវបង្កើតទទេ)
       - name: Create placeholder folders for unused assets
         run: |
           mkdir -p assets/bin/macos
@@ -81,28 +109,31 @@ jobs:
           touch assets/images/.gitkeep
         shell: bash
 
+      # Step 6: ទាញ Package dependencies
       - run: flutter pub get
+
+      # Step 7: Build App ជា Release
       - run: flutter build windows --release
 
-      # *** Compile Installer មុន Upload ***
+      # Step 8: Compile Installer ដោយ Inno Setup Action
       - name: Compile Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.8
         with:
           path: installer.iss
           options: /O+
 
-      # *** Upload Installer ទៅ Release (តែម្តង) ***
+      # Step 9: Upload Installer ទៅ Release (តែម្តង)
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2.2.2
+        uses: softprops/action-gh-release@v3
         with:
           files: installer_output/downloader_music_Setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # *** Upload Artifact (តែម្តង) ***
+      # Step 10: Upload Artifact (តែម្តង)
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4.6.2
+        uses: actions/upload-artifact@v7
         with:
           name: downloader_music-windows-installer
           path: installer_output/downloader_music_Setup.exe
