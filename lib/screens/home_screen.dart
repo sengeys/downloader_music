@@ -1,5 +1,7 @@
+import 'package:downloader_music/services/downloader_service_update.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/download_progress.dart';
 import '../services/downloader_service.dart';
@@ -19,8 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _outputDir;
 
   DownloadProgress _progress = DownloadProgress(status: DownloadStatus.idle);
-  bool get _isDownloading => _progress.status == DownloadStatus.downloading ||
-      _progress.status == DownloadStatus.merging;
+  bool get _isDownloading => _progress.status == DownloadStatus.downloading || _progress.status == DownloadStatus.merging;
 
   bool _isUpdating = false;
   String? _ytDlpVersion;
@@ -85,21 +86,19 @@ class _HomeScreenState extends State<HomeScreen> {
       _progress = DownloadProgress(status: DownloadStatus.downloading);
     });
 
-    _downloaderService
-        .download(url: url, format: _selectedFormat, outputDir: _outputDir!)
-        .listen(
-          (progress) {
-            if (!mounted) return;
-            setState(() => _progress = progress);
-          },
-          onError: (e) {
-            if (!mounted) return;
-            setState(() => _progress = DownloadProgress(
-                  status: DownloadStatus.error,
-                  errorMessage: e.toString(),
-                ));
-          },
-        );
+    _downloaderService.download(url: url, format: _selectedFormat, outputDir: _outputDir!).listen(
+      (progress) {
+        if (!mounted) return;
+        setState(() => _progress = progress);
+      },
+      onError: (e) {
+        if (!mounted) return;
+        setState(() => _progress = DownloadProgress(
+              status: DownloadStatus.error,
+              errorMessage: e.toString(),
+            ));
+      },
+    );
   }
 
   void _cancelDownload() {
@@ -173,13 +172,46 @@ class _HomeScreenState extends State<HomeScreen> {
                 TextField(
                   controller: _urlController,
                   enabled: !_isDownloading,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Video URL',
                     hintText: 'https://youtube.com/watch?v=...',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.link),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.link),
+                    suffixIcon: ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _urlController,
+                      builder: (context, value, child) {
+                        // *** ពេល TextField ទទេ → បង្ហាញ Paste Button ***
+                        // *** ពេល TextField មាន Text → បង្ហាញ Clear Button ***
+                        return value.text.isEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.content_paste_rounded, size: 20,),
+                                tooltip: 'Paste link',
+                                onPressed: _isDownloading
+                                    ? null
+                                    : () async {
+                                        final clipboardData = await Clipboard.getData(
+                                          Clipboard.kTextPlain,
+                                        );
+                                        final text = clipboardData?.text ?? '';
+                                        if (text.isNotEmpty) {
+                                          _urlController.text = text;
+                                          // ដាក់ Cursor នៅចុង Text ដោយស្វ័យប្រវត្តិ
+                                          _urlController.selection = TextSelection.fromPosition(
+                                            TextPosition(offset: text.length),
+                                          );
+                                        }
+                                      },
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.clear, size: 20,),
+                                tooltip: 'Clear',
+                                onPressed: _isDownloading
+                                    ? null
+                                    : () => _urlController.clear(),
+                              );
+                      },
+                    ),
                   ),
-                  
                 ),
                 const SizedBox(height: 16),
 
