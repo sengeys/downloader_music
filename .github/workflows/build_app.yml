@@ -50,7 +50,6 @@ jobs:
           name: downloader_music-macos
           path: build/macos/Build/Products/Release/downloader_music_macos.zip
 
-  # *** Job ថ្មីសម្រាប់ Windows ***
   build-windows:
     runs-on: windows-latest
     steps:
@@ -74,7 +73,6 @@ jobs:
           cp "$FFMPEG_DIR/ffmpeg.exe" assets/bin/windows/ffmpeg.exe
         shell: bash
 
-      # *** Step ថ្មីត្រូវបន្ថែម ***
       - name: Create placeholder folders for unused assets
         run: |
           mkdir -p assets/bin/macos
@@ -86,13 +84,14 @@ jobs:
       - run: flutter pub get
       - run: flutter build windows --release
 
-      # *** Step ថ្មី — Compile Inno Setup Installer ដោយស្វ័យប្រវត្តិ ***
+      # *** Compile Installer មុន Upload ***
       - name: Compile Inno Setup Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
           path: installer.iss
           options: /O+
 
+      # *** Upload Installer ទៅ Release (តែម្តង) ***
       - name: Upload to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2.2.2
@@ -101,28 +100,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # *** Upload Artifact (តែម្តង) ***
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4.6.2
         with:
           name: downloader_music-windows-installer
           path: installer_output/downloader_music_Setup.exe
-      # *** Upload ***
-      - name: Zip the build output
-        run: |
-          Compress-Archive -Path build\windows\x64\runner\Release\* -DestinationPath downloader_music_windows.zip
-        shell: pwsh
-
-
-      - name: Upload to GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2.2.2
-        with:
-          files: downloader_music_windows.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: downloader_music-windows
-          path: downloader_music_windows.zip
