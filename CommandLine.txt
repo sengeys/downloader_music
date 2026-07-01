@@ -8,7 +8,7 @@ flutter build windows --release
 
 // Command Push git
 git add .
-git commit -m "Add Windows build job alongside macOS"
+git commit -m "Add Button Paste and Clear on TextField"
 git push
 
 git tag v1.0.7
